@@ -228,8 +228,10 @@ export default function InventoryDashboard() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [filterType, setFilterType] = useState('ALL');
-  const [summaryData, setSummaryData] = useState(initialSummaryData);
-  const [detailData, setDetailData] = useState(initialDetailData);
+  const [summaryData, setSummaryData] = useState([]);
+  const [detailData, setDetailData] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(null);
 
   const filteredData = useMemo(() => {
     return summaryData.filter(item => 
@@ -275,18 +277,27 @@ export default function InventoryDashboard() {
   };
 
   const handleXLSX = async (file) => {
-    const data = await file.arrayBuffer();
-    const wb = XLSX.read(data);
-    
-    // Try to find "MAESTRO" sheet, fallback to first sheet
-    const sheetName = wb.SheetNames.find(name => name.toUpperCase().includes('MAESTRO')) || wb.SheetNames[0];
-    const ws = wb.Sheets[sheetName];
-    const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    
-    // Use parseMasterSheet to handle the specific format
-    const { summary, detailMap } = parseMasterSheet(json);
-    setSummaryData(summary);
-    setDetailData(detailMap);
+    try {
+      setIsLoading(true);
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data);
+      
+      // Try to find "MAESTRO" sheet, fallback to first sheet
+      const sheetName = wb.SheetNames.find(name => name.toUpperCase().includes('MAESTRO')) || wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
+      
+      // Use parseMasterSheet to handle the specific format
+      const { summary, detailMap } = parseMasterSheet(json);
+      setSummaryData(summary);
+      setDetailData(detailMap);
+      setLastUpdate(new Date());
+      alert('✅ Archivo actualizado: ' + summary.length + ' materiales cargados');
+    } catch (err) {
+      alert('❌ Error procesando archivo: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleFile = (e) => {
@@ -350,9 +361,10 @@ export default function InventoryDashboard() {
     return { summary, detailMap };
   };
 
-  // Load the Excel file that is already in the project root (served by Vite)
-  const loadLocalMasterExcel = async () => {
+  // Load the Excel file from the server (public folder)
+  const loadLocalMasterExcel = async (showAlert = true) => {
     try {
+      setIsLoading(true);
       const res = await fetch('/CIERRE TELEFONICA 1.O.xlsx');
       if (!res.ok) throw new Error('No se pudo descargar el archivo desde el servidor');
       const data = await res.arrayBuffer();
@@ -362,12 +374,23 @@ export default function InventoryDashboard() {
       const { summary, detailMap } = parseMasterSheet(json);
       setSummaryData(summary);
       setDetailData(detailMap);
-      alert('Datos cargados desde CIERRE TELEFONICA 1.O.xlsx — ' + summary.length + ' materiales');
+      setLastUpdate(new Date());
+      if (showAlert) alert('✅ Datos cargados: ' + summary.length + ' materiales');
     } catch (err) {
       console.error(err);
-      alert('Error cargando Excel: ' + err.message);
+      alert('❌ Error cargando datos: ' + err.message);
+      // Fallback to initial data if fetch fails
+      setSummaryData(initialSummaryData);
+      setDetailData(initialDetailData);
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Load data automatically on mount
+  React.useEffect(() => {
+    loadLocalMasterExcel(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-8 font-sans text-slate-800">
@@ -403,17 +426,35 @@ export default function InventoryDashboard() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="mt-3 flex items-center gap-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFile} className="hidden" />
-            <span className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm">
-              Cargar Excel (CSV / XLSX)
+        <div className="mt-3 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFile} className="hidden" />
+              <span className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                <FileText size={18} />
+                Actualizar datos (Admin)
+              </span>
+            </label>
+            <span className="text-sm text-slate-500">
+              {lastUpdate ? `Última actualización: ${lastUpdate.toLocaleString('es-CL')}` : 'Cargando datos...'}
             </span>
-          </label>
-          <span className="text-sm text-slate-500">Selecciona tu archivo de inventario</span>
+          </div>
+          {isLoading && (
+            <div className="flex items-center gap-2 text-blue-600 text-sm font-medium">
+              <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+              Cargando datos...
+            </div>
+          )}
         </div>
       </div>
 
+      {isLoading ? (
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
+          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-600 font-medium">Cargando datos del inventario...</p>
+        </div>
+      ) : (
+      <>
       {/* Main Table */}
       <div className="bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden">
         <div className="overflow-x-auto table-container">
@@ -523,7 +564,8 @@ export default function InventoryDashboard() {
         data={selectedItem ? detailData[selectedItem.code] : null}
         type={filterType}
       />
-
+      </>
+      )}
     </div>
   );
 }
