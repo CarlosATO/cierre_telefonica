@@ -277,23 +277,16 @@ export default function InventoryDashboard() {
   const handleXLSX = async (file) => {
     const data = await file.arrayBuffer();
     const wb = XLSX.read(data);
-    const ws = wb.Sheets[wb.SheetNames[0]];
+    
+    // Try to find "MAESTRO" sheet, fallback to first sheet
+    const sheetName = wb.SheetNames.find(name => name.toUpperCase().includes('MAESTRO')) || wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
     const json = XLSX.utils.sheet_to_json(ws, { defval: '' });
-    const rows = json.map(normalizeRow);
-    const byCode = {};
-    rows.forEach(r => {
-      if (!r.code) return;
-      if (!byCode[r.code]) byCode[r.code] = { ...r };
-      else {
-        byCode[r.code].ingFot += r.ingFot || 0;
-        byCode[r.code].ingFon += r.ingFon || 0;
-        byCode[r.code].outFot += r.outFot || 0;
-        byCode[r.code].outFon += r.outFon || 0;
-        byCode[r.code].stockReal = r.stockReal || byCode[r.code].stockReal;
-        byCode[r.code].diff = r.diff || byCode[r.code].diff;
-      }
-    });
-    setSummaryData(Object.values(byCode));
+    
+    // Use parseMasterSheet to handle the specific format
+    const { summary, detailMap } = parseMasterSheet(json);
+    setSummaryData(summary);
+    setDetailData(detailMap);
   };
 
   const handleFile = (e) => {
