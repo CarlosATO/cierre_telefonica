@@ -234,10 +234,16 @@ export default function InventoryDashboard() {
   const [lastUpdate, setLastUpdate] = useState(null);
 
   const filteredData = useMemo(() => {
-    return summaryData.filter(item => 
+    const filtered = summaryData.filter(item => 
       (item.desc || '').toLowerCase().includes(searchTerm.toLowerCase()) || 
       (item.code || '').includes(searchTerm)
     );
+    // Sort alphabetically by description
+    return filtered.sort((a, b) => {
+      const descA = (a.desc || '').toLowerCase();
+      const descB = (b.desc || '').toLowerCase();
+      return descA.localeCompare(descB, 'es');
+    });
   }, [searchTerm, summaryData]);
 
   const handleCellClick = (item, type) => {
@@ -427,18 +433,9 @@ export default function InventoryDashboard() {
           />
         </div>
         <div className="mt-3 flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFile} className="hidden" />
-              <span className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-                <FileText size={18} />
-                Actualizar datos (Admin)
-              </span>
-            </label>
-            <span className="text-sm text-slate-500">
-              {lastUpdate ? `Última actualización: ${lastUpdate.toLocaleString('es-CL')}` : 'Cargando datos...'}
-            </span>
-          </div>
+          <span className="text-sm text-slate-500 font-medium">
+            {lastUpdate ? `📊 Última actualización: ${lastUpdate.toLocaleString('es-CL')}` : 'Cargando datos...'}
+          </span>
           {isLoading && (
             <div className="flex items-center gap-2 text-blue-600 text-sm font-medium">
               <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
