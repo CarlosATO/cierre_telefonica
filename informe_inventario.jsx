@@ -411,6 +411,10 @@ export default function InventoryDashboard() {
           />
         </div>
         <div className="mt-3 flex items-center gap-3">
+          <label className="flex items-center gap-2">
+            <input type="file" accept=".csv,.xlsx,.xls" onChange={handleFile} className="hidden" />
+            <button className="button">Cargar datos (CSV / XLSX)</button>
+          </label>
           <button onClick={loadLocalMasterExcel} className="button bg-white text-slate-800 border">Cargar `CIERRE TELEFONICA 1.O.xlsx`</button>
           <span className="text-sm text-slate-500">O arrastra el archivo aquí</span>
         </div>
