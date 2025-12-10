@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe Inventario - Telefónica</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4/dist/theme/solarized.css" id="theme">
+  <style>
+    .tabla-resumen { width: 100%; border-collapse: collapse; }
+    .tabla-resumen th, .tabla-resumen td { border: 1px solid #ddd; padding: 8px; }
+    .tabla-resumen th { background: #f3f4f6; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Informe Inventario</h1>
+        <p><strong>Gestión Unificada FON + FOT</strong></p>
+        <p>Presentación de revisión — 9 de diciembre de 2025</p>
+      </section>
+
+      <section>
+        <h2>Objetivo</h2>
+        <ul>
+          <li>Revisar la conciliación entre registros (FON/FOT) y stock físico.</li>
+          <li>Detectar diferencias críticas (déficit / superávit).</li>
+          <li>Priorizar ítems para auditoría.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Resumen de hallazgos (ejemplo)</h2>
+        <table class="tabla-resumen">
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Descripción</th>
+              <th>Ingresos FOT</th>
+              <th>Ingresos FON</th>
+              <th>Salidas FOT</th>
+              <th>Salidas FON</th>
+              <th>Stock Real</th>
+              <th>Dif</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>10302520211</td>
+              <td>KIT Retención D.13,6mm 120m span 200m</td>
+              <td>580</td>
+              <td>5,679</td>
+              <td>398</td>
+              <td>3,957</td>
+              <td>1,800</td>
+              <td>-104</td>
+            </tr>
+            <tr>
+              <td>10302520212</td>
+              <td>KIT retención Urbana D.13,6mm Span 70m</td>
+              <td>430</td>
+              <td>2,883</td>
+              <td>350</td>
+              <td>1,885</td>
+              <td>141</td>
+              <td>-937</td>
+            </tr>
+            <tr>
+              <td>10302520213</td>
+              <td>KIT suspensión D.13,6mm 120m span 200m</td>
+              <td>750</td>
+              <td>4,035</td>
+              <td>1,329</td>
+              <td>2,889</td>
+              <td>0</td>
+              <td>-567</td>
+            </tr>
+            <tr>
+              <td>10302530374</td>
+              <td>Cable ADSS 48 fo con protección Roedor</td>
+              <td>240,000</td>
+              <td>640,000</td>
+              <td>292,919</td>
+              <td>516,850</td>
+              <td>52,000</td>
+              <td>-18,230</td>
+            </tr>
+            <tr>
+              <td>10303640051</td>
+              <td>Extensión ARO proyecto FON</td>
+              <td>35</td>
+              <td>2,679</td>
+              <td>394</td>
+              <td>3,184</td>
+              <td>0</td>
+              <td>864</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Detalle (ejemplo: 10302520211)</h2>
+        <ul>
+          <li>2024-05-06 — TRIOTSUR09-17 (CARAHUE) — 150 — FON</li>
+          <li>2024-05-10 — TRIOTSUR09-19 (NUEVA IMPERIAL) — 200 — FON</li>
+          <li>2024-06-01 — TRIOT 01-01 (VALDIVIA) — 50 — FOT</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Observaciones / Prioridades</h2>
+        <ol>
+          <li>Auditar ítems con diferencias negativas mayores a 500 unidades.</li>
+          <li>Revisar procesos de rebajas SAP vs salidas físicas.</li>
+          <li>Validar stock físico en almacenes con diferencias crónicas.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Siguientes pasos</h2>
+        <ul>
+          <li>Exportar CSV con discrepancias para auditoría</li>
+          <li>Coordinar inventario físico por zona</li>
+          <li>Actualizar tablero con datos reales tras auditoría</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Cómo visualizar localmente</h2>
+        <p>Abre este archivo en el navegador o sirve la carpeta con un servidor simple:</p>
+        <pre><code>cd "./presentacion" 
+# Python 3
+python3 -m http.server 8000
+# luego abrir http://localhost:8000</code></pre>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@4/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: true,
+      width: "100%",
+      height: "100%",
+      plugins: []
+    });
+  </script>
+</body>
+</html>

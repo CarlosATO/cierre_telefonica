@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Small helpers / overrides */
+body { @apply bg-slate-50 text-slate-800; }
+
+.max-w-3xl { max-width: 48rem; }
+.backdrop-blur-sm { backdrop-filter: blur(4px); }
+.button { @apply bg-slate-800 text-white py-2 px-4 rounded-md; }
+
+/* Sticky table header - properly configured */
+.table-container {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  position: relative;
+}
+
+.sticky-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sticky-table thead tr:first-child th {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+}
+
+.sticky-table thead tr:nth-child(2) th {
+  position: sticky;
+  top: 32px;
+  z-index: 11;
+}
+
+/* Compact table styles for better overview */
+.compact-table th,
+.compact-table td {
+  @apply px-2 py-1.5 text-xs;
+}
+
+.compact-table thead th {
+  @apply text-[9px] leading-tight;
+}
+
+.compact-table tbody td {
+  @apply text-[11px];
+}
